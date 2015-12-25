@@ -1,61 +1,61 @@
 package problems60_69;
 
-import java.util.ArrayList;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by chris on 7/30/15.
+ * Created by chris on 12/25/15.
  */
 public class Problem62 {
-    public static long cube(long n) {
-        return n * n * n;
-    }
-
     public static void main(String[] args) {
-        ArrayList<numberSet> list = new ArrayList<numberSet>();
-        int lim = 10000;
-        final long t1 = System.currentTimeMillis();
-        for (int i = 0; i < lim; i++) {
-            list.add(new numberSet(cube(i)));
-        }
-        for (int i = 0; i < lim; i++) {
-            numberSet c = list.get(i);
-            int occ = 1;
-            for (int j = i + 1; j < lim; j++) {
-                if (list.get(j).equalsa(c)) {
-                    occ++;
-                }
+        HashMap<String, Integer> permutations = new HashMap<String, Integer>();
+        int c = 100;
+        while (true) {
+            BigInteger num = new BigInteger(Integer.toString(c));
+            num = num.pow(3);
+            int[] ar = numberToArray(num);
+            String str = arrayToString(ar);
+            int numberOfPreviousOccurences;
+            try {
+                numberOfPreviousOccurences = permutations.get(str);
+            } catch (NullPointerException ex) {
+                numberOfPreviousOccurences = 0;
             }
-            if (occ == 5) {
-                System.out.println(c.value);
+            if (numberOfPreviousOccurences == 14) {
+                System.out.println(arrayToNumber(ar));
                 break;
+            } else {
+                numberOfPreviousOccurences++;
+                permutations.put(str, numberOfPreviousOccurences);
             }
+            c++;
         }
-        final long t2 = System.currentTimeMillis();
-        System.out.println(t2 - t1);
     }
 
-    public static class numberSet {
-        int[] occurences = new int[10];
-        long value = 0;
-        int length = 0;
-
-        public numberSet(long n) {
-            char[] array = Long.toString(n).toCharArray();
-            length = array.length;
-            for (char c : array) {
-                occurences[Character.getNumericValue(c)]++;
-            }
-            value = n;
+    public static String arrayToString(int[] ar) {
+        StringBuffer temp = new StringBuffer();
+        for (int i = 0; i < 10; i++) {
+            temp.append(ar[i]);
         }
+        return temp.toString();
+    }
 
-        public boolean equalsa(numberSet object) {
-            if (this.length != object.length) return false;
-            for (int i = 0; i < 10; i++) {
-                if (this.occurences[i] != object.occurences[i]) {
-                    return false;
-                }
-            }
-            return true;
+    public static int[] numberToArray(BigInteger n) {
+        int[] nums = new int[10];
+        char[] ar = n.toString().toCharArray();
+        for (char t : ar) {
+            nums[Character.getNumericValue(t)]++;
         }
+        return nums;
+    }
+
+    public static String arrayToNumber(int[] ar) {
+        String toMatch = arrayToString(ar);
+        long c = 1;
+        while (!arrayToString(numberToArray(new BigInteger(Long.toString(c)).pow(3))).equals(toMatch)) {
+            c++;
+        }
+        return (new BigInteger(Long.toString(c)).pow(3).toString() + " " + c);
     }
 }

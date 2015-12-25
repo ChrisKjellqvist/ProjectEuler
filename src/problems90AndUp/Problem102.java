@@ -20,39 +20,6 @@ public class Problem102 {
 
     }
 
-    static class Line {
-        Point p1;
-        Point p2;
-        double[] xRange = new double[2];
-        double slope;
-        double b;
-
-        public Line(Point P1, Point P2) {
-            p1 = P1;
-            p2 = P2;
-            double temp = (p2.x - p1.x);
-            if (temp == 0) {
-                temp = 0.00001;
-            }
-
-            slope = (p2.y - p1.y) / temp;
-            b = -1 * slope * (p1.x) + p1.y;
-            xRange[0] = Math.min(p1.x, p2.x);
-            xRange[1] = Math.max(p1.x, p2.x);
-        }
-
-        public double xIntercept() {
-            return (-b) / slope;
-        }
-
-        public boolean containsX(double a) {
-            if (a > xRange[1])
-                return false;
-            return a >= xRange[0];
-        }
-
-    }
-
     public static boolean containsOrigin(Point p1, Point p2, Point p3) {
         Line[] lines = new Line[3];
         lines[0] = new Line(p1, p2);

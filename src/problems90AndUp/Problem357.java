@@ -45,57 +45,44 @@ public class Problem357 {
         return true;
     }
 
-    public static void main(String[] args) {
-        System.out.println("1");
+    public static list<Integer> shortList() {
         list<Integer> a = new list<Integer>();
         list<Integer> b = new list<Integer>();
         for (int n : primes) {
             a.add(n - 1);
             b.add((n - 2) * 2);
         }
-
-
-        System.out.println("2");
-        list<Integer> merged = list.merge(a, b);
-
-
-        System.out.println("3");
+        list<Integer> merged = list.mergeBoth(a, b);
         int osize = merged.size();
         for (int i = 0; i < merged.size(); i++) {
             int c = merged.get(i);
-            for (int j = 2; j < Math.sqrt(merged.get(i)); j++) {
+            for (int j = 2; j < Math.sqrt(c); j++) {
                 if (c % (j * j) == 0) {
                     merged.remove(i);
-                    j = (int) Math.sqrt(merged.get(i)) + 5;
+                    j = (int) Math.sqrt(c) + 5;
                     i--;
                 }
             }
         }
-        MessageBox box1 = new MessageBox("0");
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        box1.setVisible(true);
-        double size = merged.size();
-        int[] mergedArray = new int[merged.size()];
-        for (int i = 0; i < merged.size(); i++) {
-            mergedArray[i] = merged.get(i);
-        }
+        return merged;
+    }
+
+    public static void main(String[] args) {
+        list<Integer> merged = shortList();
+        int s = merged.size();
+        ArrayList<Integer> correct = new ArrayList<>();
         int ind = 0;
-        int asdf = 0;
-        for (int i = 0; i < size; i++) {
-            box1.messageLabel.setText(Double.toString((double) i / size));
-            kit.sync();
-            if (isPrimeGenerating(mergedArray[i])) {
-                sum += mergedArray[i];
-            } else {
-                int u = mergedArray[i];
-                for (int j = i; j < size; j++) {
-                    if (mergedArray[j] % u == 0) {
-                        mergedArray[j] = 4;
-                    }
-                }
-            }
+        int p = primes.get(0);
+        double sq = Math.sqrt(lim);
+        System.out.println("start");
+        while(p<sq){
+            merged = list.mergeByDivisor(merged, p);
+            ind++;
+            p = primes.get(ind);
         }
-        System.out.println(sum);
+        System.out.println("finish");
+        System.out.println((double)merged.size()/(double)s);
+        factorize(1290);
     }
 
     public static boolean isPrimeGenerating(int n) {
@@ -111,7 +98,7 @@ public class Problem357 {
     }
 
     static class list<T> extends ArrayList<T> {
-        static list merge(list<Integer> a, list<Integer> b) {
+        static list mergeBoth(list<Integer> a, list<Integer> b) {
             list<Integer> merged = new list<Integer>();
             int[] vals = new int[2];
             int j = 0;
@@ -138,5 +125,35 @@ public class Problem357 {
             }
             return merged;
         }
+        static list<Integer> mergeByDivisor (list<Integer> a, int n){
+            list<Integer> temp2 = new list<Integer>();
+            int ind = 0;
+            int p = (primes.get(ind)-n)*n;
+            while(p<lim){
+                temp2.add(p);
+                ind++;
+                p = (primes.get(ind)-n)*n;
+            }
+            for (int i = 0; i < a.size(); i++) {
+                if(a.get(i)%n==0){
+                    if(!temp2.contains(a.get(i))){
+                        a.remove(i);
+                        i--;
+                    }
+                }
+            }
+            return a;
+        }
+    }
+    public static void factorize(int n){
+        int c = 2;
+        while (n!=1){
+            while(n%c==0){
+                n/=c;
+                System.out.print(c + " ");
+            }
+            c++;
+        }
+        System.out.println();
     }
 }
