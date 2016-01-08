@@ -1,6 +1,7 @@
 package problems90AndUp;
 
 import java.awt.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -8,9 +9,10 @@ import java.util.Arrays;
  * Created by chris on 5/27/15.
  */
 public class Problem357 {
-    final static int lim = 100000000;
-    static long sum = 0;
+    final static int lim = 100000002;
+    static BigInteger sum = new BigInteger("1");
     static ArrayList<Integer> primes = sieve(lim);
+    static boolean[] rawArray;
 
     public static ArrayList<Integer> sieve(int lim) {
         int i, j;
@@ -27,22 +29,8 @@ public class Problem357 {
                 }
             }
         }
+        rawArray = array;
         return returning;
-    }
-
-    static boolean generatesPrimes(int n) {
-        if (n == 1) {
-            return false;
-        }
-        double lim = Math.sqrt(n);
-        for (int i = 2; i <= lim; i++) {
-            if (n % i == 0) {
-                if (!primes.contains(i + (n / i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     public static list<Integer> shortList() {
@@ -52,14 +40,13 @@ public class Problem357 {
             a.add(n - 1);
             b.add((n - 2) * 2);
         }
-        list<Integer> merged = list.mergeBoth(a, b);
-        int osize = merged.size();
+        list<Integer> merged = list.merge(a, b);
         for (int i = 0; i < merged.size(); i++) {
             int c = merged.get(i);
             for (int j = 2; j < Math.sqrt(c); j++) {
                 if (c % (j * j) == 0) {
                     merged.remove(i);
-                    j = (int) Math.sqrt(c) + 5;
+                    j = c;
                     i--;
                 }
             }
@@ -69,27 +56,20 @@ public class Problem357 {
 
     public static void main(String[] args) {
         list<Integer> merged = shortList();
-        int s = merged.size();
-        ArrayList<Integer> correct = new ArrayList<>();
-        int ind = 0;
-        int p = primes.get(0);
-        double sq = Math.sqrt(lim);
-        System.out.println("start");
-        while(p<sq){
-            merged = list.mergeByDivisor(merged, p);
-            ind++;
-            p = primes.get(ind);
+        for (int a: merged){
+            if(isPrimeGenerating(a)){
+                sum = new BigInteger(Integer.toString(a)).add(sum);
+            }
         }
-        System.out.println("finish");
-        System.out.println((double)merged.size()/(double)s);
-        factorize(1290);
+        System.out.println(sum);
+
     }
 
     public static boolean isPrimeGenerating(int n) {
         double sq = Math.sqrt(n);
         for (int a = 3; a < sq; a++) {
             if (n % a == 0) {
-                if (!primes.contains(a + (n / a))) {
+                if (!rawArray[a + (n / a)]) {
                     return false;
                 }
             }
@@ -98,62 +78,33 @@ public class Problem357 {
     }
 
     static class list<T> extends ArrayList<T> {
-        static list mergeBoth(list<Integer> a, list<Integer> b) {
-            list<Integer> merged = new list<Integer>();
-            int[] vals = new int[2];
+        static list merge(list<Integer> one, list<Integer> two) {
+            list<Integer> merged = new list<>();
+            int s1 = one.size();
+            int s2 = two.size();
+            int a;
+            int b;
+            int i = 0;
             int j = 0;
-            int size = b.size();
-            vals[1] = b.get(j);
 
-            for (int i = 0; i < a.size(); i++) {
-                vals[0] = a.get(i);
-                vals[1] = b.get(j);
-                if (vals[0] == vals[1]) {
-                    merged.add(vals[0]);
-                    j++;
-                    continue;
-                }
-                while (!(vals[0] < vals[1])) {
-                    if (j + 1 >= b.size()) {
-                        return merged;
-                    } else {
-                        j++;
-                        vals[1] = b.get(j);
+            while(i < one.size()) {
+                a = one.get(i);
+                b = two.get(j);
+                while (a < b) {
+                    i++;
+                    if(i+1>s1) return merged;
+                    else {
+                        a = one.get(i);
                     }
                 }
-
+                if (a == b) {
+                    merged.add(a);
+                    i++;
+                }
+                j++;
+                if(j+1>s2) return merged;
             }
             return merged;
         }
-        static list<Integer> mergeByDivisor (list<Integer> a, int n){
-            list<Integer> temp2 = new list<Integer>();
-            int ind = 0;
-            int p = (primes.get(ind)-n)*n;
-            while(p<lim){
-                temp2.add(p);
-                ind++;
-                p = (primes.get(ind)-n)*n;
-            }
-            for (int i = 0; i < a.size(); i++) {
-                if(a.get(i)%n==0){
-                    if(!temp2.contains(a.get(i))){
-                        a.remove(i);
-                        i--;
-                    }
-                }
-            }
-            return a;
-        }
-    }
-    public static void factorize(int n){
-        int c = 2;
-        while (n!=1){
-            while(n%c==0){
-                n/=c;
-                System.out.print(c + " ");
-            }
-            c++;
-        }
-        System.out.println();
     }
 }
