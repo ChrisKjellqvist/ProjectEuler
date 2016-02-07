@@ -44,4 +44,3 @@ public class Problem74 {
         return len;
     }
 }
-
