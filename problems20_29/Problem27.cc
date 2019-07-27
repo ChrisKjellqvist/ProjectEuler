@@ -1,6 +1,4 @@
-package problems20_29;
-
-import java.util.ArrayList;
+#include "../include/primes.hpp"
 
 public class Problem27 {
     static ArrayList<Integer> primes = sieve(200000);
