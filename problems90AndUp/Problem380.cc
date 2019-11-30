@@ -25,7 +25,7 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
       if (mat[i][j] != 0)
         printf("(%d, %d) -> %f\n", i, j, mat[i][j]);
 #endif
-      // up and down neighbors
+
       else if (absdiff == mazeDimX) 
         mat[i][j] = -1;
       // No left neighbor on left wall
@@ -54,14 +54,13 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
 }
 
 int main(){
-  unsigned maze_mazeDimX = 20, maze_mazeDimY = 8;
+  unsigned maze_mazeDimX = 2, maze_mazeDimY = 3;
   unsigned matrix_n = maze_mazeDimX * maze_mazeDimY;
   SquareMatrix<double> mat(matrix_n);
   init(mat, maze_mazeDimX, maze_mazeDimY);
   mat.minor(0, 0);
   printf("finished init\n");
   fflush(stdout);
-  auto q = naive_cholesky<SquareMatrix<double>, double>(mat);
-//  q->print();
-  printf("\n\ndeterminant is %f?\n", q->trace()); 
+  naive_cholesky<double>(mat);
+  printf("\n\ndeterminant is %f?\n", mat.trace()); 
 }
