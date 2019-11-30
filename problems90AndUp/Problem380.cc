@@ -16,29 +16,29 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
       bool isLR = modres == 0 || modres == (mazeDimX - 1);
       unsigned absdiff = abs((int)(i - j));
       if (i == j && isTB && isLR)
-        mat[i][j] = 2;
+        mat.at(i, j) = 2;
       else if (i == j && (isTB || isLR))
-        mat[i][j] = 3;
+        mat.at(i, j) = 3;
       else if (i == j)
-        mat[i][j] = 4;
+        mat.at(i, j) = 4;
 #ifdef DEBUG
-      if (mat[i][j] != 0)
-        printf("(%d, %d) -> %f\n", i, j, mat[i][j]);
+      if (mat.at(i, j) != 0)
+        printf("(%d, %d) -> %f\n", i, j, mat.at(i, j));
 #endif
 
       else if (absdiff == mazeDimX) 
-        mat[i][j] = -1;
+        mat.at(i, j) = -1;
       // No left neighbor on left wall
       else if (modres == (mazeDimX -1) && (j - i == 1))
-        mat[i][j] = 0;
+        mat.at(i, j) = 0;
       // No right neighbor on right wall
       else if (modres == 0 && (j - i == -1))
-        mat[i][j] = 0;
+        mat.at(i, j) = 0;
       // LR neighbors otherwise
       else if (absdiff == 1) 
-        mat[i][j] = -1;
+        mat.at(i, j) = -1;
 #ifdef DEBUG2
-      printf("(%d, %d) %d %d -> %f\n", i, j, modres, absdiff, mat[i][j]);
+      printf("(%d, %d) %d %d -> %f\n", i, j, modres, absdiff, mat.at(i, j));
 #endif
     }
   } 
@@ -47,20 +47,21 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
   for(unsigned i = 0; i< il; ++i){
     unsigned acc = 0;
     for(unsigned j = 0; j < jl; ++j){
-      acc += mat[i][j];
+      acc += mat.at(i, j);
     }
     assert(acc == 0);
   }
 }
 
 int main(){
-  unsigned maze_mazeDimX = 2, maze_mazeDimY = 3;
-  unsigned matrix_n = maze_mazeDimX * maze_mazeDimY;
+  unsigned maze_dim_x = 9, maze_dim_y = 12;
+  unsigned matrix_n = maze_dim_x * maze_dim_y;
   SquareMatrix<double> mat(matrix_n);
-  init(mat, maze_mazeDimX, maze_mazeDimY);
+  init(mat, maze_dim_x, maze_dim_y);
   mat.minor(0, 0);
   printf("finished init\n");
   fflush(stdout);
-  naive_cholesky<double>(mat);
-  printf("\n\ndeterminant is %f?\n", mat.trace()); 
+  naive_cholesky<double>(mat, maze_dim_x);
+  printf("%f\n", trace(mat));
+//  big_trace(mat).print();
 }
