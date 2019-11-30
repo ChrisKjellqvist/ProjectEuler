@@ -61,7 +61,7 @@ int main(){
   mat.minor(0, 0);
   printf("finished init\n");
   fflush(stdout);
-  auto q = mat.naive_cholesky();
-  q->print();
-//  printf("\n\ndeterminant is %f?\n", q->trace()); 
+  auto q = naive_cholesky<SquareMatrix<double>, double>(mat);
+//  q->print();
+  printf("\n\ndeterminant is %f?\n", q->trace()); 
 }

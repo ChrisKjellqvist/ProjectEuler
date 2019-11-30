@@ -6,15 +6,26 @@
 
 // Some utility matrix operations
 
+template <class ctype>
+class Matrix {
+  public:
+    virtual ctype& at(size_t idx, size_t idy) const = 0;
+    virtual void print() = 0;
+
+
+
+};
+
+
 /**
  * Square Matrix (non-sparse)
  **/
 template<class ctype>
-class SquareMatrix {
+class SquareMatrix : public Matrix<ctype> {
   private:
     ctype *A;
-    size_t n;
   public:
+    size_t n;
     // Construction
     SquareMatrix(size_t sz) : n(sz){
       A = (ctype*)malloc(sizeof(ctype) * n * n);
@@ -32,10 +43,10 @@ class SquareMatrix {
       return A + n * idx;
     }
 
-    SquareMatrix<ctype> *copy() const {
-      auto S = new SquareMatrix(n);
-      memcpy((char*)(&S->at(0, 0)), (char*)A, sizeof(ctype) * n * n);
-      return S;
+    SquareMatrix (SquareMatrix &other) {
+      n = other.n;
+      A = (ctype*)malloc(sizeof(ctype)*n*n);
+      memcpy((char*)A, (char*)(&other.at(0, 0)), sizeof(ctype) * n * n);
     }
 
     // Get the minor of a matrix. Does it in place.
@@ -66,25 +77,6 @@ class SquareMatrix {
       }
       return acc;
     }
-    // A work in progress. Might need to find a variant for a sparse cholesky
-    SquareMatrix<ctype> *naive_cholesky() const {
-      auto S = copy();
-      auto L = new SquareMatrix(n);
-      for (unsigned j = 0; j < n; ++j){
-        if (S->at(j, j) == 0) continue; // Skip if our diagonal entry is 0
-        ctype q = L->at(j, j) = sqrt(S->at(j, j));
-        for(unsigned k = j+1; k < n; ++k){
-          L->at(k, j) = S->at(k, j) / q;
-        }
-        for(unsigned i = j + 1; i < n; ++i){
-          if (L->at(i, j) == 0) continue;
-          for(unsigned k = j + 1; k < n; ++k){
-            S->at(i, k) = S->at(i, k) - L->at(i, j) * L->at(k, j);
-          }
-        }
-      }
-      return S;
-    }
 
     void print(){
       ctype *ptr = A;
@@ -96,3 +88,25 @@ class SquareMatrix {
       }
     }
 };
+
+// A work in progress. Might need to find a variant for a sparse cholesky
+template <class matrix_ty, class ctype>
+matrix_ty* naive_cholesky(matrix_ty& Q) {
+  size_t n = Q.n;
+  matrix_ty *S = new matrix_ty(Q);
+  auto L = new matrix_ty(n);
+  for (unsigned j = 0; j < n; ++j){
+    if (S->at(j, j) == 0) continue; // Skip if our diagonal entry is 0
+    ctype q = L->at(j, j) = sqrt(S->at(j, j));
+    for(unsigned k = j+1; k < n; ++k){
+      L->at(k, j) = S->at(k, j) / q;
+    }
+    for(unsigned i = j + 1; i < n; ++i){
+      if (L->at(i, j) == 0) continue;
+      for(unsigned k = j + 1; k < n; ++k){
+        S->at(i, k) = S->at(i, k) - L->at(i, j) * L->at(k, j);
+      }
+    }
+  }
+  return S;
+}
