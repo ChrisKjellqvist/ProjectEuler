@@ -1,11 +1,10 @@
 #include "../include/matrix.hpp"
 #include <assert.h>
 
-template <class t>
-void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
+template <class matrix_ty>
+void init(matrix_ty &mat, unsigned mazeDimX, unsigned mazeDimY){
   unsigned il = mazeDimX * mazeDimY;
   unsigned jl = il;
-  printf("mX -> %d, mY -> %d\n", mazeDimX, mazeDimY);
   for(unsigned i = 0; i < il; ++i){
     for(unsigned j = 0; j < jl; ++j){
       unsigned modres = i % mazeDimX;
@@ -30,10 +29,10 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
         mat.at(i, j) = -1;
       // No left neighbor on left wall
       else if (modres == (mazeDimX -1) && (j - i == 1))
-        mat.at(i, j) = 0;
+        continue;
       // No right neighbor on right wall
       else if (modres == 0 && (j - i == -1))
-        mat.at(i, j) = 0;
+        continue;
       // LR neighbors otherwise
       else if (absdiff == 1) 
         mat.at(i, j) = -1;
@@ -47,21 +46,26 @@ void init(SquareMatrix<t> &mat, unsigned mazeDimX, unsigned mazeDimY){
   for(unsigned i = 0; i< il; ++i){
     unsigned acc = 0;
     for(unsigned j = 0; j < jl; ++j){
-      acc += mat.at(i, j);
+      if (mat.valid(i, j))
+        acc += mat.at(i, j);
     }
     assert(acc == 0);
   }
+  
 }
 
+#define maze_dim_x 500
+#define maze_dim_y 1000
+
+//using mat_ty = SquareMatrix<double>;
+using mat_ty = SparseDiagonalMatrix<double, maze_dim_x>;
+
 int main(){
-  unsigned maze_dim_x = 9, maze_dim_y = 12;
   unsigned matrix_n = maze_dim_x * maze_dim_y;
-  SquareMatrix<double> mat(matrix_n);
+  mat_ty mat(matrix_n);
   init(mat, maze_dim_x, maze_dim_y);
-  mat.minor(0, 0);
-  printf("finished init\n");
-  fflush(stdout);
-  naive_cholesky<double>(mat, maze_dim_x);
-  printf("%f\n", trace(mat));
-//  big_trace(mat).print();
+  auto m2 = mat.minor(0, 0);
+  naive_cholesky<mat_ty, double>(*m2, maze_dim_x);
+//  printf("%f\n", trace(*m2));
+  big_trace(*m2).print();
 }

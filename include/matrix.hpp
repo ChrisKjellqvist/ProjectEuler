@@ -36,7 +36,7 @@ class SquareMatrix {
     }
 
     // Get the minor of a matrix. Does it in place.
-    void minor(unsigned idx, unsigned idy){
+    SquareMatrix *minor(unsigned idx, unsigned idy){
       unsigned off = 0;
       ctype *ptr = A;
       for(unsigned i = 0; i < n; ++i){
@@ -54,6 +54,11 @@ class SquareMatrix {
         }
       }
       --n;
+      return this;
+    }
+
+    bool valid(unsigned idx, unsigned idy){
+      return (idx >= 0 && idx < n) && (idy >= 0 && idy < n);
     }
 
     void print(){
@@ -71,34 +76,55 @@ class SquareMatrix {
  * Sparse Diagonal Matrix
  * the 'diagonality' of it will be the width of the diagonal
  */
-template<class ctype>
+template<class ctype, unsigned diagonality>
 class SparseDiagonalMatrix {
   private:
     ctype* A;
   public:
     unsigned n;
     unsigned diag;
-    unsigned hdiag;
 
-    SparseDiagonalMatrix (unsigned sz, unsigned diagonality){
+    SparseDiagonalMatrix (unsigned sz){
       diag = diagonality * 2 + 1;
-      hdiag = diagonality;
+      n = sz;
       A = (ctype*)malloc(sizeof(ctype)*diag*n);
       memset(A, 0, sizeof(ctype)*diag*n);
     }
 
+    bool valid(unsigned idx, unsigned idy){
+      return abs((long)idy-(long)idx) <= diagonality;
+    }
+
     ctype& at(unsigned idx, unsigned idy){
-      unsigned index = (idx * diag) + (idy - idx) + hdiag;
-      assert(abs(idy-idx) <= hdiag);
+      unsigned index = (idx * diag) + (idy - idx) + diagonality;
+      assert(abs((long)idy-(long)idx) <= diagonality);
       return A[index];
     }
 
-    SparseDiagonalMatrix<ctype> *minor(unsigned idx, unsigned idy){
-      auto min = new SparseDiagonalMatrix<ctype>(n-1, hdiag);
-      i
-
+    SparseDiagonalMatrix<ctype, diagonality> *minor(unsigned idx, unsigned idy){
+      auto min = new SparseDiagonalMatrix<ctype, diagonality>(n-1);
+      for(unsigned i = 0; i < n - 1; ++i){
+        unsigned row = (i < idx) ? i : i + 1;
+        for(unsigned j = 0; j < n - 1; ++j){
+          unsigned col = (j < idy) ? j : j + 1;
+          if (min->valid(i, j) && valid(row, col))
+            min->at(i, j) = at(row, col);
+        }
+      }
+      return min;
     }
-}
+    void print(){
+      for(unsigned i = 0; i < n; ++i){
+        for(unsigned j = 0; j < n; ++j){
+          if (valid(i, j))
+            printf("%f\n", at(i, j));
+          else
+            printf("0.00000\n");
+        }
+        printf("---------------\n");
+      }
+    }
+};
 
 template<class Mat>
 double trace(Mat &M) {
@@ -119,12 +145,12 @@ BigDouble big_trace(Mat &M) {
 }
 
 // A work in progress. Might need to find a variant for a sparse cholesky
-template <class ctype>
-void naive_cholesky(SquareMatrix<ctype>& S, 
+template <class matrix_ty, class ctype>
+void naive_cholesky(matrix_ty& S, 
     unsigned row_length // This is special information about the maze matrix
     ) {
   unsigned n = S.n;
-  auto L = new SquareMatrix<ctype>(n);
+  auto L = new matrix_ty(n);
   for (unsigned j = 0; j < n; ++j){
     unsigned walk_max = (n > j+row_length+1)?(j+row_length+1):n;
     if (S.at(j, j) == 0) continue; // Skip if our diagonal entry is 0
