@@ -144,14 +144,12 @@ BigDouble big_trace(Mat &M) {
   return trace_acc;
 }
 
-// A work in progress. Might need to find a variant for a sparse cholesky
 template <class matrix_ty, class ctype>
-void naive_cholesky(matrix_ty& S, 
-    unsigned row_length // This is special information about the maze matrix
-    ) {
+void naive_cholesky(matrix_ty& S, unsigned row_length) {
   unsigned n = S.n;
   auto L = new matrix_ty(n);
   for (unsigned j = 0; j < n; ++j){
+    // only walk through our band, don't bother calculating 0s!
     unsigned walk_max = (n > j+row_length+1)?(j+row_length+1):n;
     if (S.at(j, j) == 0) continue; // Skip if our diagonal entry is 0
     ctype q = L->at(j, j) = sqrt(S.at(j, j));
@@ -160,9 +158,9 @@ void naive_cholesky(matrix_ty& S,
     }
     for(unsigned i = j + 1; i < walk_max; ++i){
       if (L->at(i, j) ==  0) continue;
-      q = L->at(i, j);
+      ctype r = L->at(i, j);
       for(unsigned k = j + 1; k < walk_max; ++k){
-        S.at(i, k) = S.at(i, k) - q * L->at(k, j);
+        S.at(i, k) -= r * L->at(k, j);
       }
     }
   }
