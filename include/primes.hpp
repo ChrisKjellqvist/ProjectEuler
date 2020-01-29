@@ -3,9 +3,10 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 // Sieve of Eratosthenes
-void
+inline void
 getPrimes(std::vector<long> *Primes, 
     long Limit){
   char *PrimeAr = (char*)malloc(sizeof(char)*Limit);
