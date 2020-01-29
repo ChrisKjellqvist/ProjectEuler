@@ -36,16 +36,16 @@ int main(){
   int dist;
   for(unsigned i = 0; i < sz; ++i){
     int i_num = filtered[i];
-    int i_f = split(i_num);
+    int i_rep = split(i_num);
     int break_distance = (10000 - i_num) >> 1;
     for(unsigned j = i+1; j < sz; ++j){
       int j_num = filtered[j];
-      int j_f = split(j_num);
+      int j_rep = split(j_num);
       if ((dist = j_num - i_num) > break_distance) break;
-      if (i_f != j_f) continue;
+      if (i_rep != j_rep) continue;
       unsigned k_num = j_num + dist;
-      int k_f = split(k_num);
-      if(k_f != j_f) continue;
+      int k_rep = split(k_num);
+      if(k_rep != j_rep) continue;
       if(!std::binary_search(filtered.begin() + i, filtered.end(), k_num)) continue;
       printf("%d %d %d\n", i_num, j_num, k_num);
       if (found_first)
